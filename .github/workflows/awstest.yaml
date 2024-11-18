@@ -5,6 +5,8 @@ on:
 permissions:
   id-token: write
   contents: read
+env:
+  ECR_REPOSITORY: '2024-aws-cicd'
 jobs:
   build-docker-image:
     runs-on: 'ubuntu-22.04'
@@ -19,9 +21,22 @@ jobs:
         uses: 'gradle/gradle-build-action@v3'
         with:
           arguments: 'clean bootJar'
+
+      # AWS 로그인
       - name: 'Config AWS Credentials'
+        id: 'aws-login'
         uses: 'aws-actions/configure-aws-credentials@v4'
         with:
           role-to-assume: 'arn:aws:iam::484907495106:role/github-aws-role'
           role-session-name: 'sampleSessionName'
           aws-region: 'ap-northeast-2'
+
+      - name: Build and Push Image to AWS ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.aws-login.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
