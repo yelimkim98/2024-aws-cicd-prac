@@ -2,6 +2,9 @@ name: AWS CI CD
 on:
   push:
     branches: ["main"]
+permissions:
+  id-token: write
+  contents: read
 jobs:
   build-docker-image:
     runs-on: 'ubuntu-22.04'
@@ -16,3 +19,9 @@ jobs:
         uses: 'gradle/gradle-build-action@v3'
         with:
           arguments: 'clean bootJar'
+      - name: 'Config AWS Credentials'
+        uses: 'aws-actions/configure-aws-credentials@v4'
+        with:
+          role-to-assume: 'arn:aws:iam::484907495106:role/github-aws-role'
+          role-session-name: 'sampleSessionName'
+          aws-region: 'ap-northeast-2'
