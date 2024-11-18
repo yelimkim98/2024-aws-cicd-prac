@@ -11,7 +11,7 @@ env:
   ECS_CLUSTER: 'yerim-test'
   ECS_SERVICE: '2024-aws-cicd-service'
   CONTAINER_NAME: '2024-aws-cicd-test'
-  ECS)TASK)DEFINITION: './task-definition.json'
+  ECS_TASK_DEFINITION: './task-definition.json'
 
 jobs:
   build-docker-image:
